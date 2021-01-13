@@ -16,6 +16,7 @@ struct ProspectsView: View {
     
     @EnvironmentObject var prospects: Prospects
     @State private var isShowingScanner = false
+    @State private var isShowingSortingSheet = false
     
     let filter: FilterType
     
@@ -46,11 +47,23 @@ struct ProspectsView: View {
         NavigationView {
             List {
                 ForEach(filteredProspects) { prospect in
-                    VStack(alignment: .leading) {
-                        Text(prospect.name)
-                            .font(.headline)
-                        Text(prospect.emailAddress)
-                            .foregroundColor(.secondary)
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(prospect.name)
+                                .font(.headline)
+                            Text(prospect.emailAddress)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        if filter == .none {
+                            if prospect.isContacted {
+                                Image(systemName: "bell")
+                            } else {
+                                Image(systemName: "bell.fill")
+                            }
+                        }
                     }
                     .contextMenu {
                         Button(prospect.isContacted ? "Mark Uncontacted" : "Mark Contacted" ) {
@@ -65,7 +78,12 @@ struct ProspectsView: View {
                 }
             }
             .navigationBarTitle(title)
-            .navigationBarItems(trailing: Button(action: {
+            .navigationBarItems(leading: Button(action: {
+                self.isShowingSortingSheet = true
+            }) {
+                Image(systemName: "arrow.up.arrow.down")
+                Text("Sort")
+            }, trailing: Button(action: {
                 self.isShowingScanner = true
             }) {
                 Image(systemName: "qrcode.viewfinder")
@@ -73,6 +91,13 @@ struct ProspectsView: View {
             })
             .sheet(isPresented: $isShowingScanner) {
                 CodeScannerView(codeTypes: [.qr], simulatedData: "Paul Hudson\npaul@hackingwithswift.com", completion: self.handleScan)
+            }
+            .actionSheet(isPresented: $isShowingSortingSheet) {
+                ActionSheet(title: Text("Sort By"), buttons: [
+                    .default(Text("Sort by Name")) { self.prospects.sort(by: .name) },
+                    .default(Text("Sort by Most Recent")) { self.prospects.sort(by: .recent) },
+                    .cancel()
+                ])
             }
         }
     }

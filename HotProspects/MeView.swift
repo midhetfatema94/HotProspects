@@ -28,7 +28,7 @@ struct MeView: View {
                     .font(.title)
                     .padding([.horizontal, .bottom])
                 
-                Image(uiImage: generateQRCode(from: "\(name) \n \(emailAddress)"))
+                Image(uiImage: generateQRCode(from: "\(name)\n\(emailAddress)"))
                     .interpolation(.none)
                     .resizable()
                     .scaledToFit()

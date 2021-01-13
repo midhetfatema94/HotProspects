@@ -11,6 +11,7 @@ class Prospect: Codable, Identifiable {
     var id = UUID()
     var name = "Anonymous"
     var emailAddress = ""
+    var timestamp = Date()
     fileprivate(set) var isContacted = false
 }
 
@@ -19,6 +20,7 @@ class Prospects: ObservableObject {
     
     static let userDefaultKey = "SavedData"
     
+    enum SortBy { case name, recent }
     
     init() {
         
@@ -46,5 +48,18 @@ class Prospects: ObservableObject {
     func add(_ prospect: Prospect) {
         self.people.append(prospect)
         self.save()
+    }
+    
+    func sort(by: SortBy) {
+        switch by {
+        case .name:
+            people.sort(by: { (lhs, rhs) -> Bool in
+                return lhs.name < rhs.name
+            })
+        case .recent:
+            people.sort(by: { (lhs, rhs) -> Bool in
+                return lhs.timestamp > rhs.timestamp
+            })
+        }
     }
 }
